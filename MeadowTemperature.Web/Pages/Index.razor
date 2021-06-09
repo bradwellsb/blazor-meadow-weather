@@ -1,0 +1,79 @@
+﻿@page "/"
+@using ChartJs.Blazor
+@using ChartJs.Blazor.Common
+@using ChartJs.Blazor.Common.Axes
+@using ChartJs.Blazor.Common.Enums
+@using ChartJs.Blazor.Common.Time
+@using ChartJs.Blazor.Util
+@using ChartJs.Blazor.LineChart
+
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<TemperatureDataContext> DbFactory
+
+<Chart Config="_config" @ref="_chart"></Chart>
+
+
+@code{
+    private LineConfig _config;
+    private Chart _chart;
+
+    private List<TemperatureData> Temperatures { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _config = new LineConfig
+        {
+            Options = new LineOptions
+            {
+                Responsive = true,
+                Title = new OptionsTitle
+                {
+                    Display = true,
+                    Text = "Temperature from Meadow"
+                },
+                Tooltips = new Tooltips
+                {
+                    Mode = InteractionMode.Nearest,
+                    Intersect = true
+                },
+                Scales = new Scales
+                {
+                    XAxes = new List<CartesianAxis>
+                    {
+                        new TimeAxis
+                        {
+                            Time = new TimeOptions
+                            {
+                                TooltipFormat = "ll HH:mm:ss"
+                            }
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+
+        Temperatures = await context.TemperatureData.OrderByDescending(t => t.DateTime).Take(10).ToListAsync();
+
+        IDataset<TimePoint> temperatureDataSet = new LineDataset<TimePoint>
+        {
+            Label = "Temperature (°C)",
+            BackgroundColor = ColorUtil.FromDrawingColor(System.Drawing.Color.Blue),
+            BorderColor = ColorUtil.FromDrawingColor(System.Drawing.Color.Blue),
+            Fill = FillingMode.Disabled
+        };
+
+        foreach (var t in Temperatures)
+        {
+            temperatureDataSet.Add(new TimePoint(t.DateTime, t.TemperatureC));
+        }
+
+        _config.Data.Datasets.Add(temperatureDataSet);
+
+        await base.OnParametersSetAsync();
+    }
+}
