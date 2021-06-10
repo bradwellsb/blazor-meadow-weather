@@ -10,12 +10,11 @@
 @using Microsoft.EntityFrameworkCore
 @inject IDbContextFactory<TemperatureDataContext> DbFactory
 
-<Chart Config="_config" @ref="_chart"></Chart>
+<Chart Config="_config"></Chart>
 
 
 @code{
     private LineConfig _config;
-    private Chart _chart;
 
     private List<TemperatureData> Temperatures { get; set; }
 
