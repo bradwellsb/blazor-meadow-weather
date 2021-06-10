@@ -15,8 +15,7 @@
 
 @code{
     private LineConfig _config;
-
-    private List<TemperatureData> Temperatures { get; set; }
+    private IDataset<TimePoint> temperatureDataSet;
 
     protected override void OnInitialized()
     {
@@ -50,21 +49,21 @@
                 }
             }
         };
-    }
 
-    protected override async Task OnParametersSetAsync()
-    {
-        using var context = DbFactory.CreateDbContext();
-
-        Temperatures = await context.TemperatureData.OrderByDescending(t => t.DateTime).Take(10).ToListAsync();
-
-        IDataset<TimePoint> temperatureDataSet = new LineDataset<TimePoint>
+        temperatureDataSet = new LineDataset<TimePoint>
         {
             Label = "Temperature (°C)",
             BackgroundColor = ColorUtil.FromDrawingColor(System.Drawing.Color.Blue),
             BorderColor = ColorUtil.FromDrawingColor(System.Drawing.Color.Blue),
             Fill = FillingMode.Disabled
         };
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+
+        List<TemperatureData> Temperatures = await context.TemperatureData.OrderByDescending(t => t.DateTime).Take(10).ToListAsync();
 
         foreach (var t in Temperatures)
         {
