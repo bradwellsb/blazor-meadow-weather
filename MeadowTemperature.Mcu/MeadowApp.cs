@@ -33,7 +33,7 @@ namespace MeadowTemperature.Mcu
                 sensorType: AnalogTemperature.KnownSensorType.LM35
             );
             temperatureSensor.TemperatureUpdated += TemperatureUpdated;
-            temperatureSensor.StartUpdating(standbyDuration: 5000);
+            temperatureSensor.StartUpdating(updateInterval: TimeSpan.FromSeconds(5));
         }
 
         private async Task InitializeNetworkingAsync()

@@ -33,7 +33,7 @@ namespace MeadowTemperature.Web
 
             using var context = new TemperatureDataContext(builder.Options);
 
-            context.Database.EnsureCreated();
+            await context.Database.EnsureCreatedAsync();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
